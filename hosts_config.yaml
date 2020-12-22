@@ -1,0 +1,17 @@
+---
+- hosts:  prometheus 
+  become: true
+  tasks:
+
+    - name: Add mappings to /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          {{ item.ip }} {{ item.name }}
+        marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
+      loop:
+        - { name: graf1, ip: 192.168.11.11}
+        - { name: web1,  ip: 192.168.11.12}
+        - { name: web2,  ip: 192.168.11.13}
+        - { name: prom1, ip: 192.168.11.14}
+
