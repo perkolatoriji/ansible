@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Check disk space
+      shell: "df -h /var | tail -1 | awk {'print $4'} | sed 's/Gi//g' | sed 's/G//g'"
+      register: available_disk_space
+
+    - name: Debug space
+      debug:
+        var: available_disk_space.stdout
+
+    - name: Evaluate space amount
+      shell: "echo $(( {{ available_disk_space.stdout }} > 5 ))"
+      register: enough_space
+
+    - name: Debug enough space
+      debug:
+        var: enough_space.stdout
+
+    - name: Debug enough available space
+      debug:
+        msg:
+        - "Action allowed as available space is bigger than 5Gi"
+      when: enough_space.stdout == "1"
+
+    - name: Debug insufficient available space
+      debug:
+        msg:
+        - "Insufficient available space in host {{ available_disk_space.stdout }}G"
+      when: enough_space.stdout == "0"
